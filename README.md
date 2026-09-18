@@ -67,6 +67,9 @@ Arranca en `http://localhost:8080`. Flyway aplica las migraciones de `src/main/r
 | `GET/POST /api/orders`, `GET/PUT /api/orders/{id}`, `POST …/media?kind=`, `DELETE …/media/{mediaId}`, `POST …/submit`, `POST …/cancel` | DOCTOR (lectura también LAB/PATIENT) | Prescripciones: borrador → archivos (fotos comprimidas a JPG + miniatura, STL/PDF/video) → envío al laboratorio |
 | `GET /api/media/{id}` | Bearer JWT | URLs firmadas frescas de un archivo (tenant) |
 | `GET /api/payments?orderId=` | Bearer JWT | Pagos de una orden (el de diagnóstico se crea en PENDING al enviar la orden) |
+| `POST /api/payments/{id}/mock-approve` | pagador o ADMIN | **Solo desarrollo** (`orthiva.payments.mock-enabled`): aprueba el pago y avanza la orden (`DIAGNOSIS_PAID` / `TREATMENT_PAID`) |
+| `GET/POST /api/orders/{id}/plans` | lectura todos; POST LAB/PLANNER | Versiones del plan (doctor/paciente solo ven las enviadas); POST inicia la planeación y abre una versión |
+| `GET/PUT /api/plans/{id}`, `POST …/media?kind=`, `DELETE …/media/{mediaId}`, `POST …/send` | LAB/PLANNER (GET también doctor/paciente) | Editar plan (diagnóstico, etapas, precios), archivos 3D/PDF/STL, enviar al doctor (`PLAN_SENT`) |
 
 ### Máquina de estados de la orden (`OrderStatus`)
 
@@ -138,4 +141,5 @@ Modelos de Ollama esperados (descargar con `ollama pull <modelo>`):
   - 1.1 Identidad, tenant y menús ✅
   - 1.2 Doctores, clínicas y pacientes ✅
   - 1.3 Prescripción y órdenes ✅ (máquina de estados, archivos con miniaturas, pago de diagnóstico PENDING vía evento)
-  - 1.4 Planeación · 1.4 Planeación · 1.5 Aprobación · 1.6 Pagos · 1.7 Producción y seguimiento · 1.8 Notificaciones · 1.9 Calidad
+  - 1.4 Planeación (laboratorio) ✅ (bandeja, plan con versiones, etapas, precios, archivos, envío; pago mock de desarrollo)
+  - 1.5 Aprobación · 1.4 Planeación · 1.5 Aprobación · 1.6 Pagos · 1.7 Producción y seguimiento · 1.8 Notificaciones · 1.9 Calidad

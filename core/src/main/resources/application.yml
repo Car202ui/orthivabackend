@@ -52,6 +52,9 @@ orthiva:
     client-secret: ${KEYCLOAK_CLIENT_SECRET:orthiva-core-dev-secret}
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:3000}
+  payments:
+    # Dev only: POST /api/payments/{id}/mock-approve approves without a gateway. Never true in production.
+    mock-enabled: ${PAYMENTS_MOCK_ENABLED:true}
   storage:
     endpoint: ${S3_ENDPOINT:http://localhost:9000}
     region: ${S3_REGION:us-east-1}

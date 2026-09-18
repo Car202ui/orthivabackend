@@ -135,6 +135,32 @@ public class OrderService {
         return toDto(order);
     }
 
+    // ------------------------------------------------------------------ for other modules
+
+    /** Order visible to the current actor (same rule as {@link #get}), as an entity for in-transaction use. */
+    public TreatmentOrder requireVisible(UUID id) {
+        var actor = TenantContext.require();
+        var order = orders.findByIdAndDeletedAtIsNull(id).orElseThrow(() -> DomainException.notFound("Order"));
+        boolean allowed = hasLabRole(actor)
+                || (actor.hasRole("DOCTOR") && order.getDoctorId().equals(actor.personId()))
+                || (actor.hasRole("PATIENT") && order.getPatientId().equals(actor.personId()));
+        if (!allowed) {
+            throw DomainException.notFound("Order");
+        }
+        return order;
+    }
+
+    /** User-driven transition (roles checked by the state machine). */
+    public OrderDto transition(UUID id, OrderStatus to, String note) {
+        return toDto(workflow.transition(requireVisible(id), to, note));
+    }
+
+    /** System-driven transition (payments/webhooks); runs with whatever scope the caller set up. */
+    public void systemTransition(UUID id, OrderStatus to, String note) {
+        var order = orders.findByIdAndDeletedAtIsNull(id).orElseThrow(() -> DomainException.notFound("Order"));
+        workflow.systemTransition(order, to, note);
+    }
+
     // ------------------------------------------------------------------ helpers
 
     private TreatmentOrder loadForDoctor(UUID id) {
