@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.generator.EventType;
 import org.hibernate.type.SqlTypes;
 
 import com.orthiva.core.shared.persistence.BaseEntity;
@@ -28,6 +30,8 @@ public class TreatmentOrder extends BaseEntity {
     @Column(name = "tenant_id", nullable = false)
     private UUID tenantId;
 
+    /** BIGSERIAL assigned by the database; Hibernate re-reads it right after the insert. */
+    @Generated(event = EventType.INSERT)
     @Column(name = "order_number", insertable = false, updatable = false)
     private Long orderNumber;
 

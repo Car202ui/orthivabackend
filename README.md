@@ -64,7 +64,14 @@ Arranca en `http://localhost:8080`. Flyway aplica las migraciones de `src/main/r
 | `GET/POST /api/clinics`, `PUT/DELETE /api/clinics/{id}` | rol DOCTOR | Clínicas del doctor (borrado lógico) |
 | `GET /api/patients?q=`, `POST`, `GET/PUT /api/patients/{id}` | rol DOCTOR | Pacientes del doctor; un email ya existente en el tenant se **vincula** en vez de duplicarse |
 | `GET /api/portal/doctors` | rol PATIENT | Equipo tratante del paciente |
-| `POST /api/files/test` (multipart `file`) | Bearer JWT | Prueba de subida a MinIO; devuelve key y URL firmada |
+| `GET/POST /api/orders`, `GET/PUT /api/orders/{id}`, `POST …/media?kind=`, `DELETE …/media/{mediaId}`, `POST …/submit`, `POST …/cancel` | DOCTOR (lectura también LAB/PATIENT) | Prescripciones: borrador → archivos (fotos comprimidas a JPG + miniatura, STL/PDF/video) → envío al laboratorio |
+| `GET /api/media/{id}` | Bearer JWT | URLs firmadas frescas de un archivo (tenant) |
+| `GET /api/payments?orderId=` | Bearer JWT | Pagos de una orden (el de diagnóstico se crea en PENDING al enviar la orden) |
+
+### Máquina de estados de la orden (`OrderStatus`)
+
+`DRAFT → SUBMITTED → DIAGNOSIS_PAID → IN_PLANNING → PLAN_SENT → (CHANGES_REQUESTED ↔) APPROVED → TREATMENT_PAID → IN_PRODUCTION → SHIPPED → IN_FOLLOW_UP → CLOSED`, más `REJECTED` / `CANCELLED`.
+Cada transición tiene los roles que pueden ejecutarla (o `SYSTEM` para las que disparan los pagos). Solo `OrderWorkflowService` cambia el estado: valida, escribe `order_status_history` y publica `OrderStatusChanged` (registro de eventos de Modulith, `event_publication`), al que reaccionan `payment` (y luego `notification`).
 | `GET /actuator/modulith` | Bearer JWT | Estructura de módulos |
 
 ### Identidad y multi-tenant (cómo funciona)
@@ -130,4 +137,5 @@ Modelos de Ollama esperados (descargar con `ollama pull <modelo>`):
 - **Fase 1 (MVP transaccional)** en curso:
   - 1.1 Identidad, tenant y menús ✅
   - 1.2 Doctores, clínicas y pacientes ✅
-  - 1.3 Prescripción 🚧 (backend `order`/`file` escrito, sin probar; falta módulo `payment` mínimo, pruebas y frontend) · 1.4 Planeación · 1.5 Aprobación · 1.6 Pagos · 1.7 Producción y seguimiento · 1.8 Notificaciones · 1.9 Calidad
+  - 1.3 Prescripción y órdenes ✅ (máquina de estados, archivos con miniaturas, pago de diagnóstico PENDING vía evento)
+  - 1.4 Planeación · 1.4 Planeación · 1.5 Aprobación · 1.6 Pagos · 1.7 Producción y seguimiento · 1.8 Notificaciones · 1.9 Calidad

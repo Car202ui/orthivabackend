@@ -34,7 +34,7 @@ public class MeController {
                              boolean onboardingRequired, PersonDto person, TenantSummary tenant) {
     }
 
-    public record TenantSummary(UUID id, String name, String currency) {
+    public record TenantSummary(UUID id, String name, String currency, java.math.BigDecimal diagnosisPrice) {
     }
 
     @GetMapping
@@ -45,7 +45,7 @@ public class MeController {
         TenantSummary tenant = null;
         if (onboarded) {
             var t = identity.currentTenant();
-            tenant = new TenantSummary(t.getId(), t.getName(), t.getCurrency());
+            tenant = new TenantSummary(t.getId(), t.getName(), t.getCurrency(), t.getDiagnosisPrice());
         }
         return new MeResponse(
                 jwt.getSubject(),
