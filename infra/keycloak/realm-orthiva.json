@@ -1,0 +1,102 @@
+{
+  "realm": "orthiva",
+  "enabled": true,
+  "displayName": "Orthiva",
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": true,
+  "verifyEmail": false,
+  "resetPasswordAllowed": true,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "sslRequired": "none",
+  "accessTokenLifespan": 900,
+  "roles": {
+    "realm": [
+      { "name": "ADMIN", "description": "Platform administrator" },
+      { "name": "DOCTOR", "description": "Treating doctor / orthodontist" },
+      { "name": "PATIENT", "description": "Patient" },
+      { "name": "LAB", "description": "Laboratory staff" },
+      { "name": "PLANNER", "description": "Treatment planning team" },
+      { "name": "PRODUCTION", "description": "Aligner production team" },
+      { "name": "ACCOUNTING", "description": "Accounting / billing" },
+      { "name": "REPRESENTATIVE", "description": "Sales representative" }
+    ]
+  },
+  "defaultRoles": ["offline_access", "uma_authorization"],
+  "clients": [
+    {
+      "clientId": "orthiva-web",
+      "name": "Orthiva Web (Next.js)",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "rootUrl": "http://localhost:3000",
+      "baseUrl": "http://localhost:3000",
+      "redirectUris": ["http://localhost:3000/*"],
+      "webOrigins": ["http://localhost:3000"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:3000/*"
+      },
+      "protocolMappers": [
+        {
+          "name": "orthiva-core-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.custom.audience": "orthiva-core",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "admin@orthiva.local",
+      "email": "admin@orthiva.local",
+      "firstName": "Ana",
+      "lastName": "Admin",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "admin123", "temporary": false }],
+      "realmRoles": ["ADMIN"]
+    },
+    {
+      "username": "doctor@orthiva.local",
+      "email": "doctor@orthiva.local",
+      "firstName": "Diego",
+      "lastName": "Doctor",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "doctor123", "temporary": false }],
+      "realmRoles": ["DOCTOR"]
+    },
+    {
+      "username": "lab@orthiva.local",
+      "email": "lab@orthiva.local",
+      "firstName": "Laura",
+      "lastName": "Laboratorio",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "lab123", "temporary": false }],
+      "realmRoles": ["LAB", "PLANNER"]
+    },
+    {
+      "username": "patient@orthiva.local",
+      "email": "patient@orthiva.local",
+      "firstName": "Pablo",
+      "lastName": "Paciente",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "patient123", "temporary": false }],
+      "realmRoles": ["PATIENT"]
+    }
+  ]
+}

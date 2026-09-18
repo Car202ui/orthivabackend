@@ -1,0 +1,36 @@
+# Secrets / local config
+.env
+.env.local
+*.env
+
+# Java / Maven
+core/target/
+core/.mvn/wrapper/maven-wrapper.jar
+*.class
+*.log
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+.factorypath
+
+# Python
+ai-service/.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+
+# ML artifacts (download separately, never commit)
+ai-service/models/
+*.pt
+*.pth
+*.onnx
+
+# OS
+.DS_Store
+Thumbs.db
