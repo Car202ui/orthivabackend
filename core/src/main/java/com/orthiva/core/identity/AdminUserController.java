@@ -39,14 +39,13 @@ public class AdminUserController {
 
     @GetMapping
     public List<PersonDto> list() {
-        return identity.listStaff().stream().map(PersonDto::from).toList();
+        return identity.listStaff();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public PersonDto create(@Valid @RequestBody CreateStaffRequest body) {
-        var person = identity.createStaff(new IdentityService.NewStaffInput(
+        return identity.createStaff(new IdentityService.NewStaffInput(
                 body.email(), body.firstName(), body.lastName(), body.type(), body.temporaryPassword()));
-        return PersonDto.from(person);
     }
 }

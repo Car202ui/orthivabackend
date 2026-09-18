@@ -86,7 +86,7 @@ public class IdentityService implements ActorResolver {
      * Self-registered user chooses DOCTOR or PATIENT. Creates the person, grants the realm
      * role in Keycloak; the frontend then refreshes its token to pick up the role.
      */
-    public Person onboard(Jwt jwt, OnboardingInput in) {
+    public PersonDto onboard(Jwt jwt, OnboardingInput in) {
         if (!PersonType.selfServiceAllowed(in.type())) {
             throw DomainException.badRequest("invalid_type", "Only DOCTOR or PATIENT can self-register");
         }
@@ -99,22 +99,28 @@ public class IdentityService implements ActorResolver {
             Person person = provision(kcId, in.type(), jwt);
             applyProfile(person, in.profile());
             keycloak.assignRealmRoles(kcId, List.of(in.type().name()));
-            return person;
+            return PersonDto.from(person);
         });
     }
 
+    /** Entity for use inside a transaction; controllers use {@link #currentProfile()} (DTOs are mapped before the session closes). */
     @Transactional(readOnly = true)
     public Person currentPerson() {
         UUID id = TenantContext.require().personId();
         return persons.findById(id).orElseThrow(() -> DomainException.notFound("Person"));
     }
 
+    @Transactional(readOnly = true)
+    public PersonDto currentProfile() {
+        return PersonDto.from(currentPerson());
+    }
+
     @Transactional
-    public Person updateProfile(ProfileInput in) {
+    public PersonDto updateProfile(ProfileInput in) {
         Person person = currentPerson();
         validateDoctorFields(person.getType(), in);
         applyProfile(person, in);
-        return person;
+        return PersonDto.from(person);
     }
 
     private void applyProfile(Person person, ProfileInput in) {
@@ -146,7 +152,7 @@ public class IdentityService implements ActorResolver {
     }
 
     /** ADMIN creates internal users (LAB, PLANNER, PRODUCTION, ACCOUNTING, REPRESENTATIVE). */
-    public Person createStaff(NewStaffInput in) {
+    public PersonDto createStaff(NewStaffInput in) {
         if (!in.type().isStaff() || in.type() == PersonType.ADMIN) {
             throw DomainException.badRequest("invalid_type", "Only internal staff roles can be created here");
         }
@@ -169,18 +175,19 @@ public class IdentityService implements ActorResolver {
                     in.firstName(), in.lastName(), in.email());
             person.completeProfile(new ProfileInput(in.firstName(), in.lastName(), null, null, "es",
                     null, null, null, null, null, null, null));
-            return persons.save(person);
+            return PersonDto.from(persons.save(person));
         });
     }
 
     @Transactional(readOnly = true)
-    public List<Person> listStaff() {
+    public List<PersonDto> listStaff() {
         UUID tenantId = TenantContext.require().tenantId();
         if (tenantId == null) {
             tenantId = defaultTenant().getId();
         }
         return persons.findByTenantIdAndTypeInAndDeletedAtIsNullOrderByLastNameAscFirstNameAsc(tenantId,
-                List.of(PersonType.LAB, PersonType.PLANNER, PersonType.PRODUCTION, PersonType.ACCOUNTING, PersonType.REPRESENTATIVE));
+                        List.of(PersonType.LAB, PersonType.PLANNER, PersonType.PRODUCTION, PersonType.ACCOUNTING, PersonType.REPRESENTATIVE))
+                .stream().map(PersonDto::from).toList();
     }
 
     @Transactional(readOnly = true)

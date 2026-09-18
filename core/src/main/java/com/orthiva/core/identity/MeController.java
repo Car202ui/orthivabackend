@@ -41,7 +41,7 @@ public class MeController {
     public MeResponse me(@AuthenticationPrincipal Jwt jwt) {
         List<String> roles = IdentityService.realmRoles(jwt).stream().sorted().toList();
         boolean onboarded = TenantContext.current().isPresent();
-        PersonDto person = onboarded ? PersonDto.from(identity.currentPerson()) : null;
+        PersonDto person = onboarded ? identity.currentProfile() : null;
         TenantSummary tenant = null;
         if (onboarded) {
             var t = identity.currentTenant();
@@ -61,8 +61,7 @@ public class MeController {
     /** Self-registered user picks DOCTOR/PATIENT and fills the profile in one step. */
     @PostMapping("/onboarding")
     public PersonDto onboard(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody OnboardingRequest body) {
-        var person = identity.onboard(jwt, new IdentityService.OnboardingInput(body.type(), body.profile()));
-        return PersonDto.from(person);
+        return identity.onboard(jwt, new IdentityService.OnboardingInput(body.type(), body.profile()));
     }
 
     public record OnboardingRequest(PersonType type, @Valid ProfileInput profile) {
@@ -70,11 +69,11 @@ public class MeController {
 
     @GetMapping("/profile")
     public PersonDto profile() {
-        return PersonDto.from(identity.currentPerson());
+        return identity.currentProfile();
     }
 
     @PutMapping("/profile")
     public PersonDto updateProfile(@Valid @RequestBody ProfileInput body) {
-        return PersonDto.from(identity.updateProfile(body));
+        return identity.updateProfile(body);
     }
 }

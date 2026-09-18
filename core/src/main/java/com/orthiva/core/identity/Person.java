@@ -125,6 +125,19 @@ public class Person extends BaseEntity {
         return p;
     }
 
+    /** Basic demographics edited by the treating doctor (patients without a login). */
+    public void updateBasics(String firstName, String lastName, String email, String documentId,
+                             LocalDate birthDate, Gender gender, String phoneCountry, String phoneNumber) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.documentId = documentId;
+        this.birthDate = birthDate;
+        this.gender = gender;
+        this.phoneCountry = phoneCountry;
+        this.phoneNumber = phoneNumber;
+    }
+
     public void linkKeycloak(UUID keycloakUserId) {
         this.keycloakUserId = keycloakUserId;
     }

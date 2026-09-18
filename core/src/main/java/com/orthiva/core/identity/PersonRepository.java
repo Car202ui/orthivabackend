@@ -12,5 +12,7 @@ public interface PersonRepository extends JpaRepository<Person, UUID> {
 
     Optional<Person> findFirstByEmailIgnoreCaseAndTypeAndKeycloakUserIdIsNull(String email, PersonType type);
 
+    Optional<Person> findFirstByEmailIgnoreCaseAndTypeAndDeletedAtIsNull(String email, PersonType type);
+
     List<Person> findByTenantIdAndTypeInAndDeletedAtIsNullOrderByLastNameAscFirstNameAsc(UUID tenantId, List<PersonType> types);
 }

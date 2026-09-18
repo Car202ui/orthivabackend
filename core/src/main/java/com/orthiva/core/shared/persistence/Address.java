@@ -66,8 +66,10 @@ public class Address {
 
     public record Dto(UUID id, String country, String stateProvince, String city, String postalCode,
                       String line1, String line2, String reference) {
+        /** Uses getters on purpose: {@code a} may be a lazy Hibernate proxy whose fields are empty. */
         public static Dto from(Address a) {
-            return a == null ? null : new Dto(a.id, a.country, a.stateProvince, a.city, a.postalCode, a.line1, a.line2, a.reference);
+            return a == null ? null : new Dto(a.getId(), a.getCountry(), a.getStateProvince(), a.getCity(),
+                    a.getPostalCode(), a.getLine1(), a.getLine2(), a.getReference());
         }
     }
 
@@ -78,14 +80,18 @@ public class Address {
         }
 
         public void applyTo(Address a) {
-            a.country = country;
-            a.stateProvince = stateProvince;
-            a.city = city;
-            a.postalCode = postalCode;
-            a.line1 = line1;
-            a.line2 = line2;
-            a.reference = reference;
+            a.update(this);   // method call so a lazy proxy forwards to the real entity
         }
+    }
+
+    public void update(Input in) {
+        this.country = in.country();
+        this.stateProvince = in.stateProvince();
+        this.city = in.city();
+        this.postalCode = in.postalCode();
+        this.line1 = in.line1();
+        this.line2 = in.line2();
+        this.reference = in.reference();
     }
 
     public UUID getId() {
@@ -96,11 +102,27 @@ public class Address {
         return country;
     }
 
+    public String getStateProvince() {
+        return stateProvince;
+    }
+
     public String getCity() {
         return city;
     }
 
+    public String getPostalCode() {
+        return postalCode;
+    }
+
     public String getLine1() {
         return line1;
+    }
+
+    public String getLine2() {
+        return line2;
+    }
+
+    public String getReference() {
+        return reference;
     }
 }

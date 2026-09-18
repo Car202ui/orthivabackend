@@ -61,6 +61,9 @@ Arranca en `http://localhost:8080`. Flyway aplica las migraciones de `src/main/r
 | `POST /api/me/onboarding` | Bearer JWT | Usuario auto-registrado elige tipo y completa perfil; el core asigna el rol en Keycloak |
 | `GET/PUT /api/me/profile` | Bearer JWT | Perfil de la persona (doctores: licencia obligatoria) |
 | `GET/POST /api/admin/users` | rol ADMIN | Lista / crea usuarios internos (LAB, PLANNER, PRODUCTION, ACCOUNTING, REPRESENTATIVE) vía Keycloak Admin API |
+| `GET/POST /api/clinics`, `PUT/DELETE /api/clinics/{id}` | rol DOCTOR | Clínicas del doctor (borrado lógico) |
+| `GET /api/patients?q=`, `POST`, `GET/PUT /api/patients/{id}` | rol DOCTOR | Pacientes del doctor; un email ya existente en el tenant se **vincula** en vez de duplicarse |
+| `GET /api/portal/doctors` | rol PATIENT | Equipo tratante del paciente |
 | `POST /api/files/test` (multipart `file`) | Bearer JWT | Prueba de subida a MinIO; devuelve key y URL firmada |
 | `GET /actuator/modulith` | Bearer JWT | Estructura de módulos |
 
@@ -126,4 +129,5 @@ Modelos de Ollama esperados (descargar con `ollama pull <modelo>`):
 - **Fase 0 (fundación)** ✅: infraestructura, esquema de datos, seguridad OIDC, storage y esqueletos.
 - **Fase 1 (MVP transaccional)** en curso:
   - 1.1 Identidad, tenant y menús ✅
-  - 1.2 Doctores, clínicas y pacientes · 1.3 Prescripción · 1.4 Planeación · 1.5 Aprobación · 1.6 Pagos · 1.7 Producción y seguimiento · 1.8 Notificaciones · 1.9 Calidad
+  - 1.2 Doctores, clínicas y pacientes ✅
+  - 1.3 Prescripción · 1.4 Planeación · 1.5 Aprobación · 1.6 Pagos · 1.7 Producción y seguimiento · 1.8 Notificaciones · 1.9 Calidad
