@@ -105,11 +105,21 @@ curl -X POST http://localhost:8180/realms/orthiva/protocol/openid-connect/token 
 - Borrado lógico (`deleted_at`) en tablas clínicas.
 - Embeddings fijos a `vector(768)` (nomic-embed-text); cambiar de modelo implica migración y re-indexado.
 
-### Módulos (`com.orthiva.core.*`)
+### Arquitectura
 
-`shared` (config, seguridad, errores) · `identity` · `patient` · `order` · `planning` · `payment` · `file` · `notification`
+Monolito modular por capas. Ver **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** (módulos, capas,
+reglas, máquina de estados) y los diagramas C4 generados en `docs/modulith/`.
 
-Cada módulo es un paquete con `package-info.java` anotado con `@ApplicationModule`; Spring Modulith verifica que no haya dependencias cíclicas.
+```
+com.orthiva.core.<modulo>/
+├── <Modulo>Service.java   API pública (interfaz) + DTOs, enums, eventos   ← lo único visible desde otros módulos
+├── domain/                entidades JPA y reglas
+├── application/           <Modulo>ServiceImpl (casos de uso)
+├── infrastructure/        persistence/ (repositorios), keycloak/, storage/
+└── web/                   controladores REST
+```
+
+`ModularityTests` (`mvnw test`) rompe el build si un módulo importa internos de otro o si aparece un ciclo.
 
 ## 3. Servicio de IA (FastAPI)
 

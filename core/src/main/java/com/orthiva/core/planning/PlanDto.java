@@ -1,5 +1,8 @@
 package com.orthiva.core.planning;
 
+import com.orthiva.core.planning.domain.TreatmentPlan;
+import com.orthiva.core.planning.domain.TreatmentStage;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
@@ -31,12 +34,12 @@ public record PlanDto(
         List<MediaDto> media) {
 
     public record StageDto(UUID id, int stageNumber, Arch arch, String description, BigDecimal cost) {
-        static StageDto from(TreatmentStage s) {
+        public static StageDto from(TreatmentStage s) {
             return new StageDto(s.getId(), s.getStageNumber(), s.getArch(), s.getDescription(), s.getCost());
         }
     }
 
-    static PlanDto of(TreatmentPlan p, String plannerName, List<MediaDto> media) {
+    public static PlanDto of(TreatmentPlan p, String plannerName, List<MediaDto> media) {
         return new PlanDto(p.getId(), p.getOrderId(), p.getVersion(), p.isSent(), p.getPlannerId(), plannerName,
                 p.getDiagnosis(), p.getAdditionalInfo(), p.getUpperStages(), p.getLowerStages(),
                 p.getPriceUpper(), p.getPriceLower(), p.getPriceTotal(), p.getCurrency(),

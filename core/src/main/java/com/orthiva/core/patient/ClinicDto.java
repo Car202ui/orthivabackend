@@ -1,5 +1,7 @@
 package com.orthiva.core.patient;
 
+import com.orthiva.core.patient.domain.Clinic;
+
 import java.util.UUID;
 
 import com.orthiva.core.shared.persistence.Address;

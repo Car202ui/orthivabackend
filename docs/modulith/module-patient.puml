@@ -1,0 +1,33 @@
+@startuml
+title <size:24>patient</size>
+
+set separator none
+top to bottom direction
+
+<style>
+  root {
+    BackgroundColor: #ffffff
+    FontColor: #444444
+  }
+</style>
+
+!include <C4/C4>
+!include <C4/C4_Context>
+!include <C4/C4_Component>
+
+System_Boundary("OrthivaCoreApplication_boundary", "OrthivaCoreApplication", $tags="") {
+  Container_Boundary("OrthivaCoreApplication.OrthivaCoreApplication_boundary", "OrthivaCoreApplication", $tags="") {
+    Component(OrthivaCoreApplication.OrthivaCoreApplication.shared, "shared", $techn="Module", $descr="", $tags="", $link="")
+    Component(OrthivaCoreApplication.OrthivaCoreApplication.identity, "identity", $techn="Module", $descr="", $tags="", $link="")
+    Component(OrthivaCoreApplication.OrthivaCoreApplication.patient, "patient", $techn="Module", $descr="", $tags="", $link="")
+  }
+
+}
+
+Rel(OrthivaCoreApplication.OrthivaCoreApplication.patient, OrthivaCoreApplication.OrthivaCoreApplication.identity, "uses", $techn="", $tags="", $link="")
+Rel(OrthivaCoreApplication.OrthivaCoreApplication.patient, OrthivaCoreApplication.OrthivaCoreApplication.shared, "uses", $techn="", $tags="", $link="")
+Rel(OrthivaCoreApplication.OrthivaCoreApplication.identity, OrthivaCoreApplication.OrthivaCoreApplication.shared, "uses", $techn="", $tags="", $link="")
+
+SHOW_LEGEND(true)
+hide stereotypes
+@enduml
