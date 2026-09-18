@@ -1,11 +1,11 @@
-﻿spring:
+spring:
   application:
     name: orthiva-core
 
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5433}/${DB_NAME:orthiva}
-    username: ${DB_USER:orthiva}
-    password: ${DB_PASSWORD:orthiva_dev}
+    username: ${DB_USER:orthiva_app}
+    password: ${DB_PASSWORD:orthiva_app_dev}
 
   jpa:
     open-in-view: false

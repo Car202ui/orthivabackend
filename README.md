@@ -25,7 +25,8 @@ docker compose up -d
 
 | Servicio | URL | Credenciales (dev) |
 |---|---|---|
-| PostgreSQL | `localhost:5433` (db `orthiva`) — puerto 5433 para no chocar con un PostgreSQL nativo en 5432 | `orthiva` / `orthiva_dev` |
+| PostgreSQL (admin) | `localhost:5433` (db `orthiva`) — puerto 5433 para no chocar con un PostgreSQL nativo en 5432 | `orthiva` / `orthiva_dev` (superusuario, solo administración) |
+| PostgreSQL (app) | misma BD | `orthiva_app` / `orthiva_app_dev` — rol **no** superusuario que usa el core; obligatorio para que el RLS multi-tenant aplique |
 | MinIO API / consola | `http://localhost:9000` / `http://localhost:9001` | `orthiva` / `orthiva_dev_minio` |
 | Redis | `localhost:6379` | — |
 | Keycloak | `http://localhost:8180` | admin: `admin` / `admin` |
@@ -65,6 +66,18 @@ Obtener un token para pruebas manuales (password grant, solo dev):
 ```bash
 curl -X POST http://localhost:8180/realms/orthiva/protocol/openid-connect/token -d "client_id=orthiva-web" -d "grant_type=password" -d "scope=openid" -d "username=doctor@orthiva.local" -d "password=doctor123"
 ```
+
+### Esquema de datos (Flyway `V1__baseline.sql`)
+
+- Multi-tenant: toda tabla clínica tiene `tenant_id`; **Row-Level Security** activo (`FORCE`) con la política
+  `tenant_id IS NULL OR tenant_id = app_tenant_id()`. La aplicación debe ejecutar `SET LOCAL app.tenant_id = '<uuid>'`
+  en cada transacción; operaciones de plataforma usan `SET LOCAL app.bypass_rls = 'on'`.
+- Direcciones normalizadas en `address`; las de envío (`plan_approval.ship_address_id`) son snapshots inmutables.
+- Doctor ↔ paciente N:M con historial (`doctor_patient`).
+- `media_asset` con una FK por dueño (orden, plan, seguimiento, persona) y `CHECK` de un solo dueño.
+- Un solo pago aprobado por orden y propósito (`uq_payment_approved`).
+- Borrado lógico (`deleted_at`) en tablas clínicas.
+- Embeddings fijos a `vector(768)` (nomic-embed-text); cambiar de modelo implica migración y re-indexado.
 
 ### Módulos (`com.orthiva.core.*`)
 

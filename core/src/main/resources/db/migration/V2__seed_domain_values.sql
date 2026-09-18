@@ -1,8 +1,12 @@
--- Development seed: a default tenant and the catalogs the UI needs.
+-- Development seed: a default tenant and the global catalogs the UI needs.
 
-INSERT INTO tenant (id, name, slug, country, city)
-VALUES ('00000000-0000-0000-0000-000000000001', 'Orthiva Lab (dev)', 'orthiva-dev', 'CO', 'Bogotá');
+INSERT INTO address (id, country, state_province, city, line1)
+VALUES ('00000000-0000-0000-0000-00000000a001', 'CO', 'Cundinamarca', 'Bogotá', 'Calle 1 # 1-1');
 
+INSERT INTO tenant (id, name, slug, address_id)
+VALUES ('00000000-0000-0000-0000-000000000001', 'Orthiva Lab (dev)', 'orthiva-dev', '00000000-0000-0000-0000-00000000a001');
+
+-- Global catalogs (tenant_id NULL). Tenants may add their own rows later.
 INSERT INTO domain_value (domain, code, label, sort_order) VALUES
     ('SPECIALTY', 'ORTHODONTICS',      'Ortodoncia',            1),
     ('SPECIALTY', 'GENERAL_DENTISTRY', 'Odontología general',   2),
