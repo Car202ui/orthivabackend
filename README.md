@@ -57,9 +57,22 @@ Arranca en `http://localhost:8080`. Flyway aplica las migraciones de `src/main/r
 | Endpoint | Auth | Descripción |
 |---|---|---|
 | `GET /api/health` | pública | Liveness |
-| `GET /api/me` | Bearer JWT (Keycloak) | Identidad y roles del token |
+| `GET /api/me` | Bearer JWT | Identidad (token + `person` + tenant); `onboardingRequired=true` si el usuario aún no eligió DOCTOR/PATIENT |
+| `POST /api/me/onboarding` | Bearer JWT | Usuario auto-registrado elige tipo y completa perfil; el core asigna el rol en Keycloak |
+| `GET/PUT /api/me/profile` | Bearer JWT | Perfil de la persona (doctores: licencia obligatoria) |
+| `GET/POST /api/admin/users` | rol ADMIN | Lista / crea usuarios internos (LAB, PLANNER, PRODUCTION, ACCOUNTING, REPRESENTATIVE) vía Keycloak Admin API |
 | `POST /api/files/test` (multipart `file`) | Bearer JWT | Prueba de subida a MinIO; devuelve key y URL firmada |
 | `GET /actuator/modulith` | Bearer JWT | Estructura de módulos |
+
+### Identidad y multi-tenant (cómo funciona)
+
+1. Keycloak autentica; el core valida el JWT (`SecurityConfig`).
+2. `TenantFilter` → `IdentityService.resolve()` convierte el token en un `TenantContext.Actor` (persona + tenant + roles). Al primer login con rol, la persona se **provisiona** en el tenant por defecto (`orthiva.default-tenant-slug`).
+3. `TenantAwareTransactionManager` ejecuta `set_config('app.tenant_id', …, true)` al abrir cada transacción, de modo que el **RLS** de Postgres filtra por tenant sin que los repositorios lo sepan. `PlatformScope.run()` ejecuta trabajo con RLS desactivado (provisión, admin).
+4. Un usuario que se registra solo no tiene rol: el frontend lo lleva a **onboarding**, elige DOCTOR/PATIENT, y el core (service account `orthiva-core`, permisos `manage-users`/`view-realm`) le asigna el rol. El frontend renueva el token en silencio.
+5. Los usuarios internos los crea un ADMIN con clave temporal; Keycloak exige cambiarla en el primer ingreso.
+
+Servicio SMTP de desarrollo: **Mailpit** en `http://localhost:8025` (los correos llegan en la entrega 1.8).
 
 Obtener un token para pruebas manuales (password grant, solo dev):
 
@@ -110,4 +123,7 @@ Modelos de Ollama esperados (descargar con `ollama pull <modelo>`):
 
 ## Estado
 
-**Fase 0 (fundación)**: infraestructura, esquema de datos, seguridad OIDC, storage y esqueletos. Sin lógica de negocio todavía.
+- **Fase 0 (fundación)** ✅: infraestructura, esquema de datos, seguridad OIDC, storage y esqueletos.
+- **Fase 1 (MVP transaccional)** en curso:
+  - 1.1 Identidad, tenant y menús ✅
+  - 1.2 Doctores, clínicas y pacientes · 1.3 Prescripción · 1.4 Planeación · 1.5 Aprobación · 1.6 Pagos · 1.7 Producción y seguimiento · 1.8 Notificaciones · 1.9 Calidad

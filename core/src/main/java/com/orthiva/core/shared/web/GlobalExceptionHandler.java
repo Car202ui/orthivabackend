@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -20,6 +21,21 @@ public class GlobalExceptionHandler {
         problem.setProperty("errors", ex.getBindingResult().getFieldErrors().stream()
                 .map(e -> e.getField() + ": " + e.getDefaultMessage())
                 .toList());
+        return problem;
+    }
+
+    @ExceptionHandler(DomainException.class)
+    ProblemDetail onDomain(DomainException ex) {
+        var problem = ProblemDetail.forStatusAndDetail(ex.status(), ex.getMessage());
+        problem.setProperty("code", ex.code());
+        return problem;
+    }
+
+    /** @PreAuthorize denials must stay 403, not fall into the generic 500 handler. */
+    @ExceptionHandler(AccessDeniedException.class)
+    ProblemDetail onAccessDenied(AccessDeniedException ex) {
+        var problem = ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, "Access denied");
+        problem.setProperty("code", "forbidden");
         return problem;
     }
 

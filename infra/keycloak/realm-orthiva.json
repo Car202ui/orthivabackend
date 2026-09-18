@@ -55,9 +55,30 @@
           }
         }
       ]
+    },
+    {
+      "clientId": "orthiva-core",
+      "name": "Orthiva Core (service account)",
+      "description": "Used by the core API to create internal users and assign roles through the Admin REST API",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "orthiva-core-dev-secret",
+      "protocol": "openid-connect",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": true
     }
   ],
   "users": [
+    {
+      "username": "service-account-orthiva-core",
+      "enabled": true,
+      "serviceAccountClientId": "orthiva-core",
+      "clientRoles": {
+        "realm-management": ["manage-users", "view-users", "query-users", "view-realm"]
+      }
+    },
     {
       "username": "admin@orthiva.local",
       "email": "admin@orthiva.local",
