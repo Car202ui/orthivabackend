@@ -1,6 +1,7 @@
 package com.orthiva.core.file;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.time.Duration;
 import java.util.UUID;
@@ -34,18 +35,19 @@ public class StorageService {
         this.props = props;
     }
 
+    /** Uploads a stream under {@code <folder>/<name>} and returns the object key. */
+    public String upload(String folder, String name, String contentType, InputStream in, long length) {
+        String key = folder + "/" + name;
+        s3.putObject(
+                PutObjectRequest.builder().bucket(props.bucket()).key(key).contentType(contentType).build(),
+                RequestBody.fromInputStream(in, length));
+        return key;
+    }
+
     /** Uploads the file under {@code <folder>/<uuid>-<originalName>} and returns the key. */
     public String upload(String folder, MultipartFile file) throws IOException {
         String safeName = file.getOriginalFilename() == null ? "file" : file.getOriginalFilename().replaceAll("[^A-Za-z0-9._-]", "_");
-        String key = folder + "/" + UUID.randomUUID() + "-" + safeName;
-        s3.putObject(
-                PutObjectRequest.builder()
-                        .bucket(props.bucket())
-                        .key(key)
-                        .contentType(file.getContentType())
-                        .build(),
-                RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
-        return key;
+        return upload(folder, UUID.randomUUID() + "-" + safeName, file.getContentType(), file.getInputStream(), file.getSize());
     }
 
     /** Time-limited download URL; the bucket itself is never public. */

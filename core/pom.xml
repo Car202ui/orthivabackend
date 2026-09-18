@@ -64,6 +64,13 @@
 			<artifactId>spring-modulith-starter-jpa</artifactId>
 		</dependency>
 
+		<!-- Image resizing/compression for photos and thumbnails -->
+		<dependency>
+			<groupId>net.coobird</groupId>
+			<artifactId>thumbnailator</artifactId>
+			<version>0.4.20</version>
+		</dependency>
+
 		<!-- S3-compatible object storage (MinIO in dev, R2/S3 in prod) -->
 		<dependency>
 			<groupId>software.amazon.awssdk</groupId>

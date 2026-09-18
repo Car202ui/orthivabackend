@@ -76,6 +76,18 @@ public class PatientService {
         return PatientDto.from(patient);
     }
 
+    /** For other modules: fails with 404 unless the patient is actively linked to the acting doctor. */
+    @Transactional(readOnly = true)
+    public void assertMyPatient(UUID patientId) {
+        loadMyPatient(patientId);
+    }
+
+    /** For other modules: fails with 404 unless the clinic belongs to the acting doctor. */
+    @Transactional(readOnly = true)
+    public void assertMyClinic(UUID clinicId) {
+        myClinic(clinicId);
+    }
+
     private Person loadMyPatient(UUID patientId) {
         var actor = requireDoctor();
         links.findByDoctorIdAndPatientIdAndActiveTrue(actor.personId(), patientId)

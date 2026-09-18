@@ -130,4 +130,4 @@ Modelos de Ollama esperados (descargar con `ollama pull <modelo>`):
 - **Fase 1 (MVP transaccional)** en curso:
   - 1.1 Identidad, tenant y menús ✅
   - 1.2 Doctores, clínicas y pacientes ✅
-  - 1.3 Prescripción · 1.4 Planeación · 1.5 Aprobación · 1.6 Pagos · 1.7 Producción y seguimiento · 1.8 Notificaciones · 1.9 Calidad
+  - 1.3 Prescripción 🚧 (backend `order`/`file` escrito, sin probar; falta módulo `payment` mínimo, pruebas y frontend) · 1.4 Planeación · 1.5 Aprobación · 1.6 Pagos · 1.7 Producción y seguimiento · 1.8 Notificaciones · 1.9 Calidad
