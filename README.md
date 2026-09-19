@@ -70,6 +70,9 @@ Arranca en `http://localhost:8080`. Flyway aplica las migraciones de `src/main/r
 | `POST /api/payments/{id}/mock-approve` | pagador o ADMIN | **Solo desarrollo** (`orthiva.payments.mock-enabled`): aprueba el pago y avanza la orden (`DIAGNOSIS_PAID` / `TREATMENT_PAID`) |
 | `GET/POST /api/orders/{id}/plans` | lectura todos; POST LAB/PLANNER | Versiones del plan (doctor/paciente solo ven las enviadas); POST inicia la planeación y abre una versión |
 | `GET/PUT /api/plans/{id}`, `POST …/media?kind=`, `DELETE …/media/{mediaId}`, `POST …/send` | LAB/PLANNER (GET también doctor/paciente) | Editar plan (diagnóstico, etapas, precios), archivos 3D/PDF/STL, enviar al doctor (`PLAN_SENT`) |
+| `POST /api/plans/{id}/comments` `{body}` | DOCTOR tratante o LAB/PLANNER | Hilo del plan. El comentario del doctor sobre la última versión en `PLAN_SENT` → `CHANGES_REQUESTED` |
+| `POST /api/plans/{id}/approve` `{shipToClinicName, address, shippingInstructions, agreementAccepted}` | DOCTOR tratante | Última versión en `PLAN_SENT` → `APPROVED`; guarda `address` snapshot + `plan_approval` con el `agreement_text` del tenant; evento `PlanApproved` → pago `TREATMENT` PENDING |
+| `POST /api/plans/{id}/reject` `{body}` | DOCTOR tratante | Motivo obligatorio (queda como comentario) → `REJECTED` (terminal) |
 
 ### Máquina de estados de la orden (`OrderStatus`)
 
@@ -152,4 +155,5 @@ Modelos de Ollama esperados (descargar con `ollama pull <modelo>`):
   - 1.2 Doctores, clínicas y pacientes ✅
   - 1.3 Prescripción y órdenes ✅ (máquina de estados, archivos con miniaturas, pago de diagnóstico PENDING vía evento)
   - 1.4 Planeación (laboratorio) ✅ (bandeja, plan con versiones, etapas, precios, archivos, envío; pago mock de desarrollo)
-  - 1.5 Aprobación · 1.4 Planeación · 1.5 Aprobación · 1.6 Pagos · 1.7 Producción y seguimiento · 1.8 Notificaciones · 1.9 Calidad
+  - 1.5 Aprobación (doctor) ✅ (comentarios/cambios, aprobación con dirección y acuerdo, rechazo; pago de tratamiento vía evento)
+  - Siguen: 1.6 Pagos (Mock + Wompi) · 1.7 Producción y seguimiento · 1.8 Notificaciones · 1.9 Calidad

@@ -21,6 +21,7 @@ import com.orthiva.core.payment.PaymentService;
 import com.orthiva.core.payment.PaymentStatus;
 import com.orthiva.core.payment.domain.Payment;
 import com.orthiva.core.payment.infrastructure.persistence.PaymentRepository;
+import com.orthiva.core.planning.PlanApproved;
 import com.orthiva.core.shared.tenant.PlatformScope;
 import com.orthiva.core.shared.tenant.TenantContext;
 import com.orthiva.core.shared.web.DomainException;
@@ -99,6 +100,24 @@ class PaymentServiceImpl implements PaymentService {
             payments.save(Payment.pending(event.tenantId(), event.orderId(), null, PaymentPurpose.DIAGNOSIS,
                     amount, currency, event.doctorId()));
             log.info("Diagnosis payment created for order {} ({} {})", event.orderNumber(), amount, currency);
+        });
+    }
+
+    /** The doctor approved a plan: charge the treatment at the price of that version. */
+    @ApplicationModuleListener
+    public void onPlanApproved(PlanApproved event) {
+        platform.run(() -> {
+            boolean exists = payments.findFirstByOrderIdAndPurposeAndStatus(
+                    event.orderId(), PaymentPurpose.TREATMENT, PaymentStatus.PENDING).isPresent();
+            if (exists) {
+                return;
+            }
+            BigDecimal amount = event.priceTotal() == null ? BigDecimal.ZERO : event.priceTotal();
+            String currency = event.currency() == null ? "COP" : event.currency();
+            payments.save(Payment.pending(event.tenantId(), event.orderId(), event.planId(), PaymentPurpose.TREATMENT,
+                    amount, currency, event.doctorId()));
+            log.info("Treatment payment created for order {} plan v{} ({} {})", event.orderId(), event.version(),
+                    amount, currency);
         });
     }
 

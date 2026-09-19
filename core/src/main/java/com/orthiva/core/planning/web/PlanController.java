@@ -1,5 +1,6 @@
 package com.orthiva.core.planning.web;
 
+import com.orthiva.core.planning.ApprovalInput;
 import com.orthiva.core.planning.PlanDto;
 import com.orthiva.core.planning.PlanningService;
 import com.orthiva.core.planning.PlanInput;
@@ -26,10 +27,16 @@ import com.orthiva.core.file.MediaDto;
 import com.orthiva.core.file.MediaKind;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @RestController
 @RequestMapping("/api")
 public class PlanController {
+
+    /** Body of the comment and reject endpoints. */
+    public record MessageInput(@NotBlank @Size(max = 4000) String body) {
+    }
 
     private final PlanningService service;
 
@@ -79,5 +86,27 @@ public class PlanController {
     @PreAuthorize("hasAnyRole('LAB','PLANNER')")
     public PlanDto send(@PathVariable UUID id) {
         return service.send(id);
+    }
+
+    // ---- doctor review ------------------------------------------------------------------
+
+    /** Doctor (change request) or lab (reply). The doctor's comment on a plan under review → CHANGES_REQUESTED. */
+    @PostMapping("/plans/{id}/comments")
+    @PreAuthorize("hasAnyRole('DOCTOR','LAB','PLANNER')")
+    @ResponseStatus(HttpStatus.CREATED)
+    public PlanDto comment(@PathVariable UUID id, @Valid @RequestBody MessageInput body) {
+        return service.comment(id, body.body());
+    }
+
+    @PostMapping("/plans/{id}/approve")
+    @PreAuthorize("hasRole('DOCTOR')")
+    public PlanDto approve(@PathVariable UUID id, @Valid @RequestBody ApprovalInput body) {
+        return service.approve(id, body);
+    }
+
+    @PostMapping("/plans/{id}/reject")
+    @PreAuthorize("hasRole('DOCTOR')")
+    public PlanDto reject(@PathVariable UUID id, @Valid @RequestBody MessageInput body) {
+        return service.reject(id, body.body());
     }
 }
