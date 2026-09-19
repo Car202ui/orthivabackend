@@ -166,4 +166,5 @@ Modelos de Ollama esperados (descargar con `ollama pull <modelo>`):
   - 1.5 Aprobación (doctor) ✅ (comentarios/cambios, aprobación con dirección y acuerdo, rechazo; pago de tratamiento vía evento)
   - 1.6 Pagos ✅ (puerto `PaymentGateway`; adaptadores MOCK y Wompi; checkout por redirección; webhooks firmados e idempotentes; evento `PaymentApproved`)
   - 1.7 Producción, envío y seguimiento ✅ (módulo `followup`, entidad `Shipment` en `order`, migración V5)
-  - Siguen: 1.8 Notificaciones · 1.9 Calidad
+  - 1.8 Notificaciones ✅ (módulo `notification`: listeners de `OrderStatusChanged`, `PlanSent`, `PlanApproved`, `PaymentApproved`, `FollowUpRecorded` → correos por rol en el idioma del destinatario; plantilla `templates/mail/notice.html` + textos en `messages_es/en.properties`; SMTP dev = Mailpit `:1025`, UI `http://localhost:8025`; producción vía `MAIL_HOST/PORT/USERNAME/PASSWORD/MAIL_FROM`)
+  - Siguen: 1.9 Calidad

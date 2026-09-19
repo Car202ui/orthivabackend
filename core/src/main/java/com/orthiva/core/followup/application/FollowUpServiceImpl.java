@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +17,7 @@ import com.orthiva.core.file.MediaOwner;
 import com.orthiva.core.file.MediaService;
 import com.orthiva.core.followup.FollowUpDto;
 import com.orthiva.core.followup.FollowUpInput;
+import com.orthiva.core.followup.FollowUpRecorded;
 import com.orthiva.core.followup.FollowUpService;
 import com.orthiva.core.followup.domain.FollowUp;
 import com.orthiva.core.followup.infrastructure.persistence.FollowUpRepository;
@@ -40,12 +42,15 @@ class FollowUpServiceImpl implements FollowUpService {
     private final OrderService orders;
     private final MediaService media;
     private final IdentityService identity;
+    private final ApplicationEventPublisher events;
 
-    FollowUpServiceImpl(FollowUpRepository followUps, OrderService orders, MediaService media, IdentityService identity) {
+    FollowUpServiceImpl(FollowUpRepository followUps, OrderService orders, MediaService media, IdentityService identity,
+                        ApplicationEventPublisher events) {
         this.followUps = followUps;
         this.orders = orders;
         this.media = media;
         this.identity = identity;
+        this.events = events;
     }
 
     @Override
@@ -60,6 +65,8 @@ class FollowUpServiceImpl implements FollowUpService {
         if (order.status() == OrderStatus.SHIPPED) {
             orders.transition(orderId, OrderStatus.IN_FOLLOW_UP, "Month " + in.treatmentMonth() + " check-up");
         }
+        events.publishEvent(new FollowUpRecorded(saved.getId(), orderId, order.orderNumber(), saved.getTenantId(), order.doctorId(),
+                order.patientId(), in.treatmentMonth(), in.visitDate()));
         return toDto(saved);
     }
 

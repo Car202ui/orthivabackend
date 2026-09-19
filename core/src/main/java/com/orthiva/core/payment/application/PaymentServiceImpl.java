@@ -138,7 +138,8 @@ class PaymentServiceImpl implements PaymentService {
         OrderStatus next = payment.getPurpose() == PaymentPurpose.DIAGNOSIS
                 ? OrderStatus.DIAGNOSIS_PAID : OrderStatus.TREATMENT_PAID;
         orders.systemTransition(payment.getOrderId(), next, payment.getPurpose() + " paid via " + payment.getGateway());
-        events.publishEvent(new PaymentApproved(payment.getId(), payment.getOrderId(), payment.getTenantId(),
+        Long orderNumber = orders.summaryOf(payment.getOrderId()).orderNumber();
+        events.publishEvent(new PaymentApproved(payment.getId(), payment.getOrderId(), orderNumber, payment.getTenantId(),
                 payment.getPayerId(), payment.getPurpose(), payment.getAmount(), payment.getCurrency(), payment.getGateway()));
         return toDto(payment);
     }

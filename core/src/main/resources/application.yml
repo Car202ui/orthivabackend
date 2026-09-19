@@ -23,6 +23,24 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
 
+  # Dev: Mailpit (docker-compose), UI at http://localhost:8025. Production: real SMTP through env vars.
+  mail:
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail.smtp.auth: ${MAIL_SMTP_AUTH:false}
+      mail.smtp.starttls.enable: ${MAIL_SMTP_STARTTLS:false}
+
+  messages:
+    basename: messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
+
+  thymeleaf:
+    check-template-location: true
+
   security:
     oauth2:
       resourceserver:
@@ -54,6 +72,8 @@ orthiva:
     allowed-origins: ${CORS_ORIGINS:http://localhost:3000}
   # Public URL of the web app (mock checkout page, links in e-mails).
   app-url: ${APP_URL:http://localhost:3000}
+  mail:
+    from: ${MAIL_FROM:Orthiva <no-reply@orthiva.local>}
   payments:
     # Dev only: enables the MOCK gateway (local pay page) and POST /api/payments/{id}/mock-approve. Never true in production.
     mock-enabled: ${PAYMENTS_MOCK_ENABLED:true}

@@ -200,6 +200,21 @@ class IdentityServiceImpl implements IdentityService {
                 t.getAgreementText(), t.isActive());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<PersonDto> staffOf(UUID tenantId, Set<PersonType> types) {
+        return persons.findByTenantIdAndTypeInAndDeletedAtIsNullOrderByLastNameAscFirstNameAsc(tenantId, List.copyOf(types))
+                .stream().map(PersonDto::from).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TenantDto tenant(UUID tenantId) {
+        Tenant t = tenants.findById(tenantId).orElseThrow(() -> DomainException.notFound("Tenant"));
+        return new TenantDto(t.getId(), t.getName(), t.getSlug(), t.getCurrency(), t.getDiagnosisPrice(),
+                t.getAgreementText(), t.isActive());
+    }
+
     // ------------------------------------------------------------------ people directory
 
     @Override

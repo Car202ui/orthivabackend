@@ -117,8 +117,9 @@ class PlanningServiceImpl implements PlanningService {
             throw DomainException.badRequest("price_required", "Set the treatment price before sending the plan");
         }
         plan.markSent();
-        orders.transition(plan.getOrderId(), OrderStatus.PLAN_SENT, "Plan v" + plan.getVersion());
-        events.publishEvent(new PlanSent(plan.getId(), plan.getOrderId(), plan.getTenantId(), plan.getVersion()));
+        OrderDto order = orders.transition(plan.getOrderId(), OrderStatus.PLAN_SENT, "Plan v" + plan.getVersion());
+        events.publishEvent(new PlanSent(plan.getId(), plan.getOrderId(), plan.getTenantId(), order.doctorId(),
+                order.orderNumber(), plan.getVersion()));
         return toDto(plan);
     }
 
@@ -166,7 +167,7 @@ class PlanningServiceImpl implements PlanningService {
                 shipAddress, in.shippingInstructions(), agreement));
         orders.transition(plan.getOrderId(), OrderStatus.APPROVED, "Plan v" + plan.getVersion() + " approved");
         events.publishEvent(new PlanApproved(plan.getId(), plan.getOrderId(), plan.getTenantId(), actor.personId(),
-                plan.getVersion(), plan.getPriceTotal(), plan.getCurrency()));
+                order.orderNumber(), plan.getVersion(), plan.getPriceTotal(), plan.getCurrency()));
         return toDto(plan);
     }
 

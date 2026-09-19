@@ -34,6 +34,13 @@ public interface IdentityService extends ActorResolver {
 
     List<PersonDto> listStaff();
 
+    // ---- context-free lookups (event listeners run without a request actor) ------------
+
+    /** Staff of a tenant with any of the given types (e.g. LAB + PLANNER to notify the laboratory). */
+    List<PersonDto> staffOf(UUID tenantId, Set<PersonType> types);
+
+    TenantDto tenant(UUID tenantId);
+
     // ---- people directory (used by patient, order, planning) ------------------------
 
     PersonDto get(UUID personId);

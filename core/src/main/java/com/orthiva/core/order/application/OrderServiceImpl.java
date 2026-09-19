@@ -186,6 +186,14 @@ class OrderServiceImpl implements OrderService {
         workflow.systemTransition(order, to, note);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public OrderDto summaryOf(UUID id) {
+        var o = orders.findByIdAndDeletedAtIsNull(id).orElseThrow(() -> DomainException.notFound("Order"));
+        Map<UUID, String> names = identity.namesOf(Set.of(o.getDoctorId(), o.getPatientId()));
+        return OrderDto.of(o, names.get(o.getDoctorId()), names.get(o.getPatientId()), List.of(), List.of(), null);
+    }
+
     // ------------------------------------------------------------------ helpers
 
     /** Order visible to the current actor: lab roles see all, doctors and patients only their own. */

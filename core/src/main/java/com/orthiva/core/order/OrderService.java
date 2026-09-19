@@ -51,4 +51,10 @@ public interface OrderService {
 
     /** System-driven transition (payments, schedulers); no user role involved. */
     void systemTransition(UUID id, OrderStatus to, String note);
+
+    /**
+     * Lightweight order (no movements/media/history) for system code running without an
+     * actor (webhooks, event listeners under the platform scope). Never expose to users.
+     */
+    OrderDto summaryOf(UUID id);
 }
