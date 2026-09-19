@@ -31,7 +31,8 @@ public record OrderDto(
         Instant updatedAt,
         List<MovementDto> movements,
         List<MediaDto> media,
-        List<HistoryDto> history) {
+        List<HistoryDto> history,
+        ShipmentDto shipment) {
 
     public record MovementDto(UUID id, Short toothFdi, String torque, String rotation, String buccolingual,
                               String mesiodistal, String intrusionExtrusion, String notes) {
@@ -46,11 +47,11 @@ public record OrderDto(
     }
 
     public static OrderDto of(TreatmentOrder o, String doctorName, String patientName, List<MediaDto> media,
-                       List<HistoryDto> history) {
+                       List<HistoryDto> history, ShipmentDto shipment) {
         return new OrderDto(o.getId(), o.getOrderNumber(), o.getStatus(), o.getDoctorId(), doctorName,
                 o.getPatientId(), patientName, o.getClinicId(), o.getArch(), o.isFirstTime(), o.isReevaluation(),
                 o.getTreatmentGoal(), o.getDiagnosisPrice(), o.getCurrency(), o.getSubmittedAt(),
                 o.getCreatedAt(), o.getUpdatedAt(),
-                o.getMovements().stream().map(MovementDto::from).toList(), media, history);
+                o.getMovements().stream().map(MovementDto::from).toList(), media, history, shipment);
     }
 }

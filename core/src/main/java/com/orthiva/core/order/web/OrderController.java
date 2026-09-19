@@ -4,6 +4,7 @@ import com.orthiva.core.order.OrderDto;
 import com.orthiva.core.order.OrderService;
 import com.orthiva.core.order.OrderInput;
 import com.orthiva.core.order.OrderStatus;
+import com.orthiva.core.order.ShipmentInput;
 
 import java.util.List;
 import java.util.Map;
@@ -88,5 +89,26 @@ public class OrderController {
     @PreAuthorize("hasRole('DOCTOR')")
     public OrderDto cancel(@PathVariable UUID id, @RequestBody(required = false) Map<String, String> body) {
         return service.cancel(id, body == null ? null : body.get("note"));
+    }
+
+    // ---- laboratory: production and shipping ---------------------------------------------
+
+    @PostMapping("/{id}/production/start")
+    @PreAuthorize("hasAnyRole('LAB','PRODUCTION')")
+    public OrderDto startProduction(@PathVariable UUID id) {
+        return service.startProduction(id);
+    }
+
+    @PostMapping("/{id}/ship")
+    @PreAuthorize("hasAnyRole('LAB','PRODUCTION')")
+    public OrderDto ship(@PathVariable UUID id, @Valid @RequestBody(required = false) ShipmentInput body) {
+        return service.ship(id, body == null ? new ShipmentInput(null, null, null) : body);
+    }
+
+    /** Ends the treatment; doctor or lab. */
+    @PostMapping("/{id}/close")
+    @PreAuthorize("hasAnyRole('DOCTOR','LAB')")
+    public OrderDto close(@PathVariable UUID id, @RequestBody(required = false) Map<String, String> body) {
+        return service.close(id, body == null ? null : body.get("note"));
     }
 }

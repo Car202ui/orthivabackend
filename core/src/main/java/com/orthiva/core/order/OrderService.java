@@ -26,6 +26,17 @@ public interface OrderService {
 
     OrderDto cancel(UUID id, String note);
 
+    // ---- laboratory: production and shipping -----------------------------------------
+
+    /** TREATMENT_PAID → IN_PRODUCTION. */
+    OrderDto startProduction(UUID id);
+
+    /** IN_PRODUCTION → SHIPPED; records carrier/tracking (both optional). */
+    OrderDto ship(UUID id, ShipmentInput in);
+
+    /** IN_FOLLOW_UP → CLOSED by the doctor or the lab. */
+    OrderDto close(UUID id, String note);
+
     // ---- reads (doctor: own, patient: own, lab roles: all in tenant) ----------------
 
     List<OrderDto> list(OrderStatus status, UUID patientId);

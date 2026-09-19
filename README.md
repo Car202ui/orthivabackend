@@ -78,6 +78,9 @@ Pasarela Wompi (Colombia): se activa sola cuando existen `WOMPI_PUBLIC_KEY`, `WO
 | `POST /api/plans/{id}/comments` `{body}` | DOCTOR tratante o LAB/PLANNER | Hilo del plan. El comentario del doctor sobre la última versión en `PLAN_SENT` → `CHANGES_REQUESTED` |
 | `POST /api/plans/{id}/approve` `{shipToClinicName, address, shippingInstructions, agreementAccepted}` | DOCTOR tratante | Última versión en `PLAN_SENT` → `APPROVED`; guarda `address` snapshot + `plan_approval` con el `agreement_text` del tenant; evento `PlanApproved` → pago `TREATMENT` PENDING |
 | `POST /api/plans/{id}/reject` `{body}` | DOCTOR tratante | Motivo obligatorio (queda como comentario) → `REJECTED` (terminal) |
+| `POST /api/orders/{id}/production/start`, `POST …/ship` `{carrier?, trackingNumber?, notes?}` | LAB/PRODUCTION | `TREATMENT_PAID → IN_PRODUCTION → SHIPPED`; el envío crea la fila `shipment` (V5) que la orden expone en `shipment` |
+| `POST /api/orders/{id}/close` `{note?}` | DOCTOR o LAB | `IN_FOLLOW_UP → CLOSED` |
+| `GET/POST /api/orders/{id}/follow-ups`, `PUT/DELETE /api/follow-ups/{id}`, `POST …/media?kind=`, `DELETE …/media/{mediaId}` | lectura: quien ve la orden; escritura: DOCTOR tratante | Controles mensuales (fecha, mes, notas, fotos/RX). El primero mueve `SHIPPED → IN_FOLLOW_UP`; con la orden cerrada son solo lectura |
 
 ### Máquina de estados de la orden (`OrderStatus`)
 
@@ -162,4 +165,5 @@ Modelos de Ollama esperados (descargar con `ollama pull <modelo>`):
   - 1.4 Planeación (laboratorio) ✅ (bandeja, plan con versiones, etapas, precios, archivos, envío; pago mock de desarrollo)
   - 1.5 Aprobación (doctor) ✅ (comentarios/cambios, aprobación con dirección y acuerdo, rechazo; pago de tratamiento vía evento)
   - 1.6 Pagos ✅ (puerto `PaymentGateway`; adaptadores MOCK y Wompi; checkout por redirección; webhooks firmados e idempotentes; evento `PaymentApproved`)
-  - Siguen: 1.7 Producción y seguimiento · 1.8 Notificaciones · 1.9 Calidad
+  - 1.7 Producción, envío y seguimiento ✅ (módulo `followup`, entidad `Shipment` en `order`, migración V5)
+  - Siguen: 1.8 Notificaciones · 1.9 Calidad
