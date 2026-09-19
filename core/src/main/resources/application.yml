@@ -52,9 +52,17 @@ orthiva:
     client-secret: ${KEYCLOAK_CLIENT_SECRET:orthiva-core-dev-secret}
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:3000}
+  # Public URL of the web app (mock checkout page, links in e-mails).
+  app-url: ${APP_URL:http://localhost:3000}
   payments:
-    # Dev only: POST /api/payments/{id}/mock-approve approves without a gateway. Never true in production.
+    # Dev only: enables the MOCK gateway (local pay page) and POST /api/payments/{id}/mock-approve. Never true in production.
     mock-enabled: ${PAYMENTS_MOCK_ENABLED:true}
+    # Wompi (Colombia). The gateway is used automatically when the three secrets are present; test keys (pub_test_/prv_test_) hit the sandbox.
+    wompi:
+      public-key: ${WOMPI_PUBLIC_KEY:}
+      integrity-secret: ${WOMPI_INTEGRITY_SECRET:}
+      events-secret: ${WOMPI_EVENTS_SECRET:}
+      checkout-url: ${WOMPI_CHECKOUT_URL:https://checkout.wompi.co/p/}
   storage:
     endpoint: ${S3_ENDPOINT:http://localhost:9000}
     region: ${S3_REGION:us-east-1}
